@@ -1,3 +1,6 @@
+provider "aws" {
+  region = "us-west-2"
+}
 provider "random" {}
 module "networking" {
   source                                      = "cn-terraform/networking/aws"
