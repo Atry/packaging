@@ -16,6 +16,26 @@ resource "random_password" "nexus-admin-password" {
   length = 32
 }
 
+resource "aws_secretsmanager_secret_policy" "nexus-admin-password" {
+  secret_arn = aws_secretsmanager_secret.example.arn
+
+  policy = jsonencode(
+    {
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Sid" : "EnableGithubActionTriggeredByFacebookHHVMToReadTheSecret",
+          "Effect" : "Allow",
+          "Principal" : {
+            "AWS" : "arn:aws:iam::223121549624:role/hhvm-github-actions"
+          },
+          "Action" : "secretsmanager:GetSecretValue",
+          "Resource" : "*"
+        }
+      ]
+  })
+}
+
 resource "aws_secretsmanager_secret" "nexus-admin-password" {
   name = "nexus-admin-password-${terraform.workspace}"
 }
