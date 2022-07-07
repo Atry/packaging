@@ -17,7 +17,7 @@ resource "random_password" "nexus-admin-password" {
 }
 
 resource "aws_secretsmanager_secret_policy" "nexus-admin-password" {
-  secret_arn = aws_secretsmanager_secret.example.arn
+  secret_arn = aws_secretsmanager_secret.nexus-admin-password.arn
 
   policy = jsonencode(
     {
