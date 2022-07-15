@@ -12,12 +12,12 @@ module "networking" {
   private_subnets_cidrs_per_availability_zone = ["192.168.128.0/19", "192.168.160.0/19", "192.168.192.0/19", "192.168.224.0/19"]
   single_nat                                  = true
 }
-resource "random_password" "nexus-admin-password" {
+resource "random_password" "nexus-password" {
   length = 32
 }
 
-resource "aws_secretsmanager_secret_policy" "nexus-admin-password" {
-  secret_arn = aws_secretsmanager_secret.nexus-admin-password.arn
+resource "aws_secretsmanager_secret_policy" "nexus-password" {
+  secret_arn = aws_secretsmanager_secret.nexus-password.arn
 
   policy = jsonencode(
     {
@@ -36,13 +36,14 @@ resource "aws_secretsmanager_secret_policy" "nexus-admin-password" {
   })
 }
 
-resource "aws_secretsmanager_secret" "nexus-admin-password" {
-  name = "nexus-admin-password-${terraform.workspace}"
+resource "aws_secretsmanager_secret" "nexus-password" {
+  name                    = "nexus-password-${terraform.workspace}"
+  recovery_window_in_days = 0
 }
 
-resource "aws_secretsmanager_secret_version" "nexus-admin-password" {
-  secret_id     = aws_secretsmanager_secret.nexus-admin-password.id
-  secret_string = random_password.nexus-admin-password.result
+resource "aws_secretsmanager_secret_version" "nexus-password" {
+  secret_id     = aws_secretsmanager_secret.nexus-password.id
+  secret_string = random_password.nexus-password.result
 }
 
 module "ecs-fargate" {
@@ -134,7 +135,7 @@ module "ecs-fargate" {
   environment = [
     {
       name  = "NEXUS_SECURITY_INITIAL_PASSWORD"
-      value = random_password.nexus-admin-password.result
+      value = random_password.nexus-password.result
     }
   ]
 
